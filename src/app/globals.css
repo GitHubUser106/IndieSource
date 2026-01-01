@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   CSS Variables - v0 Design System
+   ============================================ */
+
+:root {
+  /* Core theme colors */
+  --background: oklch(0.99 0.002 250);
+  --foreground: oklch(0.18 0.01 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 250);
+  --primary: oklch(0.45 0.15 250);
+  --primary-foreground: oklch(0.99 0.002 250);
+  --secondary: oklch(0.96 0.005 250);
+  --secondary-foreground: oklch(0.18 0.01 250);
+  --muted: oklch(0.96 0.005 250);
+  --muted-foreground: oklch(0.52 0.02 250);
+  --accent: oklch(0.96 0.005 250);
+  --accent-foreground: oklch(0.18 0.01 250);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0.002 250);
+  --border: oklch(0.92 0.005 250);
+  --input: oklch(0.92 0.005 250);
+  --ring: oklch(0.45 0.15 250);
+
+  /* Political lean colors */
+  --lean-left: oklch(0.55 0.18 250);
+  --lean-center-left: oklch(0.6 0.12 240);
+  --lean-center: oklch(0.65 0.02 250);
+  --lean-center-right: oklch(0.58 0.12 15);
+  --lean-right: oklch(0.58 0.18 25);
+
+  /* Chart colors (mapped to political lean) */
+  --chart-1: var(--lean-left);
+  --chart-2: var(--lean-center-left);
+  --chart-3: var(--lean-center);
+  --chart-4: var(--lean-center-right);
+  --chart-5: var(--lean-right);
+
+  --radius: 0.75rem;
+}
+
+/* Dark mode support */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.18 0.01 250);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.18 0.01 250);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.65 0.15 250);
+  --primary-foreground: oklch(0.99 0.002 250);
+  --secondary: oklch(0.24 0.01 250);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.24 0.01 250);
+  --muted-foreground: oklch(0.65 0.02 250);
+  --accent: oklch(0.24 0.01 250);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.24 0.01 250);
+  --input: oklch(0.24 0.01 250);
+  --ring: oklch(0.65 0.15 250);
+
+  /* Political lean colors (slightly brighter for dark mode) */
+  --lean-left: oklch(0.6 0.18 250);
+  --lean-center-left: oklch(0.65 0.12 240);
+  --lean-center: oklch(0.7 0.02 250);
+  --lean-center-right: oklch(0.63 0.12 15);
+  --lean-right: oklch(0.63 0.18 25);
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+/* Force mobile viewport - prevent zoom out */
+html {
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+main {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes skeleton {
+  0%, 100% {
+    opacity: 1;
+    background-color: rgb(219 234 254); /* blue-100 */
+  }
+  50% {
+    opacity: 0.5;
+    background-color: rgb(191 219 254); /* blue-200 */
+  }
+}
+
+.animate-skeleton {
+  animation: skeleton 1.5s ease-in-out infinite;
+}
+
+/* Coverage Distribution bar grow animation (horizontal) */
+@keyframes grow {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* Coverage Distribution bar grow animation (vertical) */
+@keyframes grow-vertical {
+  0% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+.animate-grow-vertical {
+  animation: grow-vertical 0.6s ease-out forwards;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-progress {
+  animation: progress 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   Political Lean Color Utilities
+   ============================================ */
+
+.bg-lean-left { background-color: var(--lean-left); }
+.bg-lean-center-left { background-color: var(--lean-center-left); }
+.bg-lean-center { background-color: var(--lean-center); }
+.bg-lean-center-right { background-color: var(--lean-center-right); }
+.bg-lean-right { background-color: var(--lean-right); }
+
+.text-lean-left { color: var(--lean-left); }
+.text-lean-center-left { color: var(--lean-center-left); }
+.text-lean-center { color: var(--lean-center); }
+.text-lean-center-right { color: var(--lean-center-right); }
+.text-lean-right { color: var(--lean-right); }
+
+.border-lean-left { border-color: var(--lean-left); }
+.border-lean-center-left { border-color: var(--lean-center-left); }
+.border-lean-center { border-color: var(--lean-center); }
+.border-lean-center-right { border-color: var(--lean-center-right); }
+.border-lean-right { border-color: var(--lean-right); }

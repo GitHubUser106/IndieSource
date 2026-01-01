@@ -1,0 +1,26 @@
+import { NextRequest, NextResponse } from "next/server";
+import { COOKIE_OPTIONS } from "@/lib/rate-limiter";
+
+export const dynamic = "force-dynamic";
+
+// DELETE /api/usage/reset - Resets the usage counter
+// WARNING: For development only. Remove or protect in production.
+export async function DELETE(req: NextRequest) {
+  const response = NextResponse.json({ 
+    success: true, 
+    message: "Usage reset. You have 20 searches remaining." 
+  });
+  
+  // Clear the usage cookie by setting it to expired
+  response.cookies.set(COOKIE_OPTIONS.name, '', {
+    ...COOKIE_OPTIONS,
+    maxAge: 0,
+  });
+  
+  return response;
+}
+
+// Also support POST for easier browser testing
+export async function POST(req: NextRequest) {
+  return DELETE(req);
+}
