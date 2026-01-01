@@ -1,5 +1,4 @@
-import { JSDOM } from 'jsdom';
-import { Readability } from '@mozilla/readability';
+import { parse } from 'node-html-parser';
 
 export interface ArticleContent {
   title: string;
@@ -120,37 +119,81 @@ export async function fetchArticleContent(url: string): Promise<ArticleContent> 
       };
     }
 
-    const dom = new JSDOM(html, { url });
-    const reader = new Readability(dom.window.document);
-    const article = reader.parse();
+    // Parse HTML with node-html-parser
+    const root = parse(html);
 
-    if (!article || !article.textContent) {
+    // Extract title
+    const title = root.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                  root.querySelector('title')?.text ||
+                  root.querySelector('h1')?.text ||
+                  '';
+
+    // Extract site name
+    const siteName = root.querySelector('meta[property="og:site_name"]')?.getAttribute('content') ||
+                     null;
+
+    // Extract byline/author
+    const byline = root.querySelector('meta[name="author"]')?.getAttribute('content') ||
+                   root.querySelector('[rel="author"]')?.text ||
+                   root.querySelector('.author')?.text ||
+                   root.querySelector('.byline')?.text ||
+                   null;
+
+    // Try common article selectors for content
+    const articleSelectors = [
+      'article',
+      '[role="article"]',
+      '.article-body',
+      '.article-content',
+      '.post-content',
+      '.entry-content',
+      '.story-body',
+      '.story-content',
+      '.content-body',
+      'main',
+    ];
+
+    let content = '';
+    for (const selector of articleSelectors) {
+      const el = root.querySelector(selector);
+      if (el) {
+        // Remove script, style, nav, aside elements
+        el.querySelectorAll('script, style, nav, aside, .ad, .advertisement').forEach(n => n.remove());
+        content = el.text.replace(/\s+/g, ' ').trim();
+        if (content.length > 500) break;
+      }
+    }
+
+    // Fallback: get all <p> tags
+    if (content.length < 500) {
+      const paragraphs = root.querySelectorAll('p');
+      content = paragraphs.map(p => p.text).join(' ').replace(/\s+/g, ' ').trim();
+    }
+
+    if (!content || content.length < 200) {
       return {
-        title: '',
+        title: title.trim(),
         content: '',
         excerpt: '',
-        byline: null,
-        siteName: null,
+        byline: byline?.trim() || null,
+        siteName: siteName?.trim() || null,
         success: false,
         paywallDetected: false,
-        error: 'Could not parse article content',
+        error: 'Could not extract sufficient article content',
       };
     }
 
     // Clean and truncate content
-    const cleanContent = article.textContent
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 8000);
+    const cleanContent = content.slice(0, 8000);
 
     // Final paywall check on parsed content
     if (cleanContent.length < 500 && detectPaywallInContent(cleanContent)) {
       return {
-        title: article.title || '',
+        title: title.trim(),
         content: '',
         excerpt: '',
-        byline: null,
-        siteName: null,
+        byline: byline?.trim() || null,
+        siteName: siteName?.trim() || null,
         success: false,
         paywallDetected: true,
         error: 'Content too short - likely paywall truncated',
@@ -158,11 +201,11 @@ export async function fetchArticleContent(url: string): Promise<ArticleContent> 
     }
 
     return {
-      title: article.title || '',
+      title: title.trim(),
       content: cleanContent,
       excerpt: cleanContent.slice(0, 500),
-      byline: article.byline || null,
-      siteName: article.siteName || null,
+      byline: byline?.trim() || null,
+      siteName: siteName?.trim() || null,
       success: true,
       paywallDetected: false,
     };
